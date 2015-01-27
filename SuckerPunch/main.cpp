@@ -53,6 +53,12 @@ std::vector<Unit> loadCSV(int& totalTeam) {
 	return units;
 }
 
+void printCSV(int totalTeam, std::vector<Unit> units) {
+	std::cout << totalTeam << std::endl;
+	for (int i = 0; i < units.size(); i++)
+		std::cout << units[i].atk << "," << units[i].def << std::endl;
+}
+
 void assignUnit(int totalTeam, std::vector<Unit> units) {
 	
 }
@@ -61,6 +67,8 @@ int main(int argc, char* argv[])
 {
 	int totalTeam;
 	std::vector<Unit> units = loadCSV(totalTeam);
+
+	printCSV(totalTeam, units);
 
 	// assign units to teams to create a balance fight
 	assignUnit(totalTeam, units);
