@@ -6,9 +6,9 @@
 
 #include "GeneticAlgorithm.hpp"
 
-std::vector<Unit> loadCSV(int& totalTeam) {
+std::vector<Unit> loadCSV(std::string fileLocation, int& totalTeam) {
 	std::vector<Unit> units;
-	std::ifstream infile("input.csv");
+	std::ifstream infile(fileLocation);
 
 	bool isFirstLine = true; // flag for checking first line
 	while (infile) {
@@ -60,10 +60,14 @@ void printCSV(int totalTeam, std::vector<Unit> units) {
 int main(int argc, char* argv[])
 {
 	int totalTeam;
-	std::vector<Unit> units = loadCSV(totalTeam);
-	GeneticAlgorithm* ga = new GeneticAlgorithm(totalTeam, units);
-
+	std::vector<Unit> units = loadCSV("input.csv", totalTeam);
 	printCSV(totalTeam, units);
+
+	// Genetic Algorithm
+	int population = 10; // total individu in one population
+	int generation = 20;
+	GeneticAlgorithm* ga = new GeneticAlgorithm(totalTeam, units, population, generation);
+	ga->findOptimumSolution();
 
 	getchar();
 	return 0;
