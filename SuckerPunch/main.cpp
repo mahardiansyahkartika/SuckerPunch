@@ -6,11 +6,12 @@
 
 #include "GeneticAlgorithm.hpp"
 
-std::vector<Unit> loadCSV(std::string fileLocation, int& totalTeam) {
+std::vector<Unit> loadCSV(std::string fileName, int& totalTeam) {
 	std::vector<Unit> units;
-	std::ifstream infile(fileLocation);
+	std::ifstream infile(fileName);
 
 	bool isFirstLine = true; // flag for checking first line
+	int idx = 0;
 	while (infile) {
 		std::string s;
 		if (!std::getline(infile, s)) break;
@@ -19,6 +20,12 @@ std::vector<Unit> loadCSV(std::string fileLocation, int& totalTeam) {
 
 		bool isAssignATK = true;
 		Unit unit;
+
+		// set index
+		if (!isFirstLine) {
+			unit.index = idx;
+			idx++;
+		}
 
 		while (ss) {
 			std::string s;
@@ -51,23 +58,72 @@ std::vector<Unit> loadCSV(std::string fileLocation, int& totalTeam) {
 	return units;
 }
 
-void printCSV(int totalTeam, std::vector<Unit> units) {
+void createCSV(std::string fileName, std::vector<std::vector<int>> result) {
+	std::ofstream myfile;
+	myfile.open(fileName);
+	
+	std::string writtenString;
+
+	for (int i = 0; i < result.size(); i++) {
+		for (int j = 0; j < result[i].size(); j++) {
+			writtenString += std::to_string(result[i][j]);
+
+			if (j < result[i].size() - 1) 
+				writtenString += ",";
+			else // last index
+				if (i < result.size() - 1)
+					writtenString += "\n";
+		}
+	}
+	
+	myfile << writtenString;
+	myfile.close();
+}
+
+void printInput(int totalTeam, std::vector<Unit> units) {
 	std::cout << totalTeam << std::endl;
 	for (unsigned int i = 0; i < units.size(); i++)
 		std::cout << units[i].atk << "," << units[i].def << std::endl;
+}
+
+void printOutput(std::vector<std::vector<int>> result, std::vector<Unit> units) {
+	int totalAtk = 0, totalDef = 0;
+	
+	std::cout << std::endl;
+	for (int i = 0; i < result.size(); i++) {
+		for (int j = 0; j < result[i].size(); j++) {
+			int index = result[i][j];
+			
+			totalAtk += units[index].atk;
+			totalDef += units[index].def;
+			std::cout << index;
+
+			// last index
+			if (j == result[i].size() - 1) std::cout << "; totalAtk : " << totalAtk << "; totalDef : " << totalDef;
+			else std::cout << ",";
+		}
+		totalAtk = 0; totalDef = 0;
+		std::cout << std::endl;
+	}
 }
 
 int main(int argc, char* argv[])
 {
 	int totalTeam;
 	std::vector<Unit> units = loadCSV("input.csv", totalTeam);
-	printCSV(totalTeam, units);
+	printInput(totalTeam, units);
 
 	// Genetic Algorithm
 	int population = 10; // total individu in one population
-	int generation = 20;
+	int generation = 15; // total generation to get best chromosome
 	GeneticAlgorithm* ga = new GeneticAlgorithm(totalTeam, units, population, generation);
-	ga->findOptimumSolution();
+	// find optimum solution
+	std::vector<std::vector<int>> result = ga->findOptimumSolution();
+	// create output file
+	createCSV("output.csv", result);
+
+	// print output
+	printOutput(result, units);
 
 	getchar();
 	return 0;

@@ -5,9 +5,10 @@
 
 struct Unit{
 	int atk, def;
+	int index;
 
-	Unit() : atk(0), def(0) {}
-	Unit(int _atk, int _def) : atk(_atk), def(_def) {}
+	Unit() : atk(0), def(0), index(0) {}
+	Unit(int _atk, int _def, int _index) : atk(_atk), def(_def), index(_index) {}
 };
 
 class Chromosome 
@@ -15,8 +16,6 @@ class Chromosome
 public:
 	Chromosome();
 	~Chromosome();
-
-	void print();
 
 	// team1 = {a,b,c}; team2 = {d,e}; team3 = {f,g,h,i};
 	// chromosome representation
@@ -45,9 +44,11 @@ public:
 	void calculateFitness(Chromosome* chromosome);
 	void createFirstGeneration();
 	void sortPopulation();
+	void setTeamSize(Chromosome* chromosome);
 	Chromosome* copyChromosome(Chromosome* chromosome);
 	Chromosome* mutation(Chromosome* chromosome);
 	Chromosome* createOneChromosome(); // create one random chromosome
-	Chromosome* findOptimumSolution();
+	std::vector<std::vector<int>> findOptimumSolution();
+	std::vector<std::vector<int>> convertToOutputList(Chromosome* choromosome); // convert chromosome data structure to output list
 };
 

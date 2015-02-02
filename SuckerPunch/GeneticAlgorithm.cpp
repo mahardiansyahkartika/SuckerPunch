@@ -4,25 +4,6 @@ Chromosome::Chromosome() {}
 
 Chromosome::~Chromosome() {}
 
-void Chromosome::print() {
-	// print team size
-	std::cout << "teamSize : " << "{";
-	for (int i = 0; i < teamSize.size(); i++) {
-		// last index
-		if (i == teamSize.size() - 1) std::cout << teamSize[i] << "}" << std::endl;
-		else std::cout << teamSize[i] << ", ";
-	}
-	// print unitList
-	std::cout << "unitList : " << "{";
-	for (int i = 0; i < unitList.size(); i++) {
-		// last index
-		if (i == unitList.size() - 1) std::cout << "(" << unitList[i].atk << "," << unitList[i].def << ")}" << std::endl;
-		else std::cout << "(" << unitList[i].atk << "," << unitList[i].def << "), ";
-	}
-	// print fitness
-	std::cout << "fitness : " << fitness << std::endl;
-}
-
 GeneticAlgorithm::GeneticAlgorithm(int totalTeam, std::vector<Unit> units, int sizePopulation, int sizeGeneration) {
 	/* initialize random seed: */
 	srand((unsigned int)time(NULL));
@@ -93,6 +74,25 @@ void GeneticAlgorithm::sortPopulation() {
 	});
 }
 
+void GeneticAlgorithm::setTeamSize(Chromosome* chromosome) {
+	// clear the vector
+	chromosome->teamSize.clear();
+
+	int totalUnits = units.size();
+	for (int i = 0; i < totalTeam; i++) {
+		// last index, assign the rest of the team
+		if (i == totalTeam - 1) {
+			chromosome->teamSize.push_back(totalUnits);
+		}
+		else {
+			int unitsInOneTeam = (rand() % (totalUnits - (totalTeam - (i + 1)))) + 1;
+			totalUnits -= unitsInOneTeam;
+
+			chromosome->teamSize.push_back(unitsInOneTeam);
+		}
+	}
+}
+
 Chromosome* GeneticAlgorithm::copyChromosome(Chromosome* chromosome) {
 	Chromosome* result = new Chromosome();
 
@@ -104,6 +104,7 @@ Chromosome* GeneticAlgorithm::copyChromosome(Chromosome* chromosome) {
 		Unit unit;
 		unit.atk = chromosome->unitList[i].atk;
 		unit.def = chromosome->unitList[i].def;
+		unit.index = chromosome->unitList[i].index;
 		result->unitList.push_back(unit);
 	}
 	// copy fitness
@@ -116,8 +117,8 @@ Chromosome* GeneticAlgorithm::mutation(Chromosome* chromosome) {
 	// copy chromosome
 	Chromosome* result = copyChromosome(chromosome);
 
-	// mutate teamSize
-
+	// mutate teamSize (change team size or not, chance 50%)
+	if (rand() % 2 == 0) setTeamSize(result);
 	// mutate units (switch 2 random unit in units array)
 	int firstIndex = rand() % result->unitList.size();
 	int secondIndex = rand() % result->unitList.size();
@@ -133,25 +134,14 @@ Chromosome* GeneticAlgorithm::createOneChromosome() {
 	Chromosome* result = new Chromosome();
 	
 	// set total team (one team contains minimum 1 unit)
-	int totalUnits = units.size();
-	for (int i = 0; i < totalTeam; i++) {
-		// last index, assign the rest of the team
-		if (i == totalTeam - 1) {
-			result->teamSize.push_back(totalUnits);
-		}
-		else {
-			int unitsInOneTeam = (rand() % (totalUnits - (totalTeam - (i + 1)))) + 1;
-			totalUnits -= unitsInOneTeam;
-
-			result->teamSize.push_back(unitsInOneTeam);
-		}
-	}
-	
+	setTeamSize(result);
 	// set unitList
 	std::vector<Unit> unitsCopy;
 	for (int i = 0; i < units.size(); i++) {
 		Unit unit;
-		unit.atk = units[i].atk; unit.def = units[i].def;
+		unit.atk = units[i].atk; 
+		unit.def = units[i].def;
+		unit.index = units[i].index;
 		unitsCopy.push_back(unit);
 	}
 	for (int i = 0; i < units.size(); i++) {
@@ -161,6 +151,7 @@ Chromosome* GeneticAlgorithm::createOneChromosome() {
 		Unit unit;
 		unit.atk = unitsCopy[indexChosed].atk;
 		unit.def = unitsCopy[indexChosed].def;
+		unit.index = unitsCopy[indexChosed].index;
 		// assign to result
 		result->unitList.push_back(unit);
 		// delete from unitsCopy
@@ -172,7 +163,7 @@ Chromosome* GeneticAlgorithm::createOneChromosome() {
 	return result;
 }
 
-Chromosome* GeneticAlgorithm::findOptimumSolution() {
+std::vector<std::vector<int>> GeneticAlgorithm::findOptimumSolution() {
 	// iterate generation
 	for (int i = 0; i < sizeGeneration; i++) {
 		// mutation and add the populationSize = populationSize * (populationSize / 2);
@@ -186,8 +177,31 @@ Chromosome* GeneticAlgorithm::findOptimumSolution() {
 			population.pop_back();
 	}
 
-	population[0]->print();
-
 	// return the best chromosome
-	return population[0];
+	return convertToOutputList(population[0]);
+}
+
+std::vector<std::vector<int>> GeneticAlgorithm::convertToOutputList(Chromosome* chromosome) {
+	std::vector<std::vector<int>> result;
+	
+	int firstIndex = 0;
+	int lastIndex = chromosome->teamSize[0];
+
+	for (int i = 0; i < totalTeam; i++) {
+		std::vector<int> listTeam;
+		for (int j = firstIndex; j < lastIndex; j++) {
+			listTeam.push_back(chromosome->unitList[j].index);
+		}
+		// sort 
+		std::sort(listTeam.begin(), listTeam.end());
+		// add to result
+		result.push_back(listTeam);
+
+		if (i < totalTeam - 1) {
+			firstIndex = lastIndex;
+			lastIndex += chromosome->teamSize[i + 1];
+		}
+	}
+
+	return result;
 }
