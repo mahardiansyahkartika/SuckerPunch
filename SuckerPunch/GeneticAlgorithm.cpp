@@ -1,3 +1,6 @@
+// <author> Mahardiansyah Kartika </author>
+// <email> mahardiansyahkartika@gmail.com </email>
+
 #include "GeneticAlgorithm.hpp"
 
 Chromosome::Chromosome() {}

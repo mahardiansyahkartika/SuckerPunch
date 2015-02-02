@@ -1,3 +1,6 @@
+// <author> Mahardiansyah Kartika </author>
+// <email> mahardiansyahkartika@gmail.com </email>
+
 #include <vector>
 #include <time.h>
 #include <algorithm>

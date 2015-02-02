@@ -1,3 +1,6 @@
+// <author> Mahardiansyah Kartika </author>
+// <email> mahardiansyahkartika@gmail.com </email>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -84,12 +87,13 @@ void printInput(int totalTeam, std::vector<Unit> units) {
 	std::cout << totalTeam << std::endl;
 	for (unsigned int i = 0; i < units.size(); i++)
 		std::cout << units[i].atk << "," << units[i].def << std::endl;
+	
+	std::cout << std::endl;
 }
 
 void printOutput(std::vector<std::vector<int>> result, std::vector<Unit> units) {
 	int totalAtk = 0, totalDef = 0;
 	
-	std::cout << std::endl;
 	for (int i = 0; i < result.size(); i++) {
 		for (int j = 0; j < result[i].size(); j++) {
 			int index = result[i][j];
