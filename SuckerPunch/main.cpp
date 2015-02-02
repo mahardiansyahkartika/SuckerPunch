@@ -115,14 +115,16 @@ int main(int argc, char* argv[])
 {
 	int totalTeam;
 	std::vector<Unit> units = loadCSV("input.csv", totalTeam);
+	
+	// print input
 	printInput(totalTeam, units);
 
-	// Genetic Algorithm
+	// GENETIC ALGORITHM
 	int population = 10; // total individu in one population
 	int generation = 15; // total generation to get best chromosome
 	GeneticAlgorithm* ga = new GeneticAlgorithm(totalTeam, units, population, generation);
-	// find optimum solution
-	std::vector<std::vector<int>> result = ga->findOptimumSolution();
+	std::vector<std::vector<int>> result = ga->findOptimumSolution(); // find optimum solution
+	
 	// create output file
 	createCSV("output.csv", result);
 
